@@ -4,9 +4,11 @@
 #include <QInputDialog>
 #include <QVariant>
 #include <QListWidgetItem>
+#include <QtGlobal>
 
-#include <random>
-using namespace std;
+//#include <random>
+//#include <chrono>
+//using namespace std;
 
 SortAlgorithms::SortAlgorithms(QWidget *parent) :
     QMainWindow(parent),
@@ -24,9 +26,10 @@ void SortAlgorithms::on_btn_Randomize_clicked()
 {
     int iNumOfEntries = 0;
     int iNewEntryVal = 0;
-    // For random entry generator
-    default_random_engine kRandEng;
-    uniform_int_distribution< int > kRandDistr(-32767, 32767);
+//    // For random entry generator
+//    unsigned int uSeed = std::chrono::system_clock::now().time_since_epoch().count();
+//    default_random_engine kRandEng( uSeed );
+//    uniform_int_distribution< int > kRandDistr(0, 60);
 
     // Ask for number of entries
     iNumOfEntries = QInputDialog::getInt( this,
@@ -46,7 +49,8 @@ void SortAlgorithms::on_btn_Randomize_clicked()
     // Start generating random numbers
     for( int i = 0; i < iNumOfEntries; i++ )
     {
-        iNewEntryVal = kRandDistr( kRandEng );
+//        iNewEntryVal = kRandDistr( kRandEng );
+        iNewEntryVal = qrand() % 60;
         QVariant kData( iNewEntryVal );
         QListWidgetItem* pkNewItem = new QListWidgetItem( QString::number( iNewEntryVal ),
                                                           ui->listW_RawInput );

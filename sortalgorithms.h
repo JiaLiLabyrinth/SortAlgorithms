@@ -15,9 +15,10 @@ public:
     explicit SortAlgorithms(QWidget *parent = 0);
     ~SortAlgorithms();
 
-private slots:
-    void on_pushButton_clicked();
+private:
+    int getRandomEntryValue();
 
+private slots:
     void on_btn_Randomize_clicked();
 
 private:
