@@ -209,7 +209,7 @@ void SortAlgorithms::doHeapSort( std::vector< Value >& rkContent )
     {
         insertToHeap( kHeap, rkContent[ indI ] );
 
-        appendVectorContentToFootprint( kHeap, QString("Build Heap Pass %1").arg( indI ) );
+        appendVectorContentToFootprint( kHeap, QString("Build Heap Pass %1:").arg( indI ) );
     }
 
     // Insert values back to content by removing max from heap
@@ -219,7 +219,7 @@ void SortAlgorithms::doHeapSort( std::vector< Value >& rkContent )
         Value kMax = popMaxFromHeap( kHeap );
         rkContent[ indInsert-- ] = kMax;
 
-        appendVectorContentToFootprint( kHeap, QString("Rm Max %1").arg( kMax ) );
+        appendVectorContentToFootprint( kHeap, QString("Rm Max %1:").arg( kMax ) );
     }
 
     // After heap is built
@@ -258,24 +258,24 @@ Value SortAlgorithms::popMaxFromHeap( Heap& rkHeap )
 
 void SortAlgorithms::heapPromoteElement( Heap& rkHeap, Index indMod )
 {
-    Index indParent = indMod / 2;
+    Index indParent = ( indMod - 1 ) / 2;
     while( indMod >= 1 & rkHeap[ indMod ] > rkHeap[ indParent ] )
     {
         exchElements( rkHeap, indMod, indParent );
         indMod = indParent;
-        indParent = indMod / 2;
+        indParent = ( indMod - 1 ) / 2;
     }
 }
 
 void SortAlgorithms::heapDemoteElement( Heap& rkHeap, Index indMod )
 {
-    Index   indLast = rkHeap.size();
+    Index   indLast = rkHeap.size() - 1;
     bool    bFoundRightPlace = false;
 
-    while( !bFoundRightPlace && ( indMod * 2 ) <= indLast )
+    while( !bFoundRightPlace && ( indMod * 2 ) < indLast )
     {
-        Index indChild1 = indMod * 2;
-        Index indChild2 = indMod * 2 + 1;
+        Index indChild1 = indMod * 2 + 1;
+        Index indChild2 = indMod * 2 + 2;
         Index indChildLarger = indChild1;   // Presume child 1 has the larger value
 
         // Determine which child is larger (i.e. the one to replace parent with if demotion is to occur)
