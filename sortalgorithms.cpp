@@ -125,6 +125,9 @@ void SortAlgorithms::on_btn_DoSort_clicked()
     case SORT_HEAP:
         doHeapSort( kRawInput );
         break;
+    case SORT_QUICK:
+        doQuickSort( kRawInput );
+        break;
     default:
         bSortComplete = false;
         break;
@@ -209,7 +212,7 @@ void SortAlgorithms::doHeapSort( std::vector< Value >& rkContent )
     {
         insertToHeap( kHeap, rkContent[ indI ] );
 
-        appendVectorContentToFootprint( kHeap, QString("Build Heap Pass %1:").arg( indI ) );
+        appendVectorContentToFootprint( kHeap, QString("Build Heap Add %1:").arg( rkContent[ indI ] ) );
     }
 
     // Insert values back to content by removing max from heap
@@ -295,4 +298,83 @@ void SortAlgorithms::heapDemoteElement( Heap& rkHeap, Index indMod )
             indMod = indChildLarger;
         }
     }
+}
+
+// Quick Sort
+void SortAlgorithms::doQuickSort( std::vector< Value >& rkContent )
+{
+    Index indStart  = 0;
+    Index indEnd    = rkContent.size() - 1;
+
+    appendToFootprintOutput( "Begin Quick Sort" );
+    quicksort( rkContent, indStart, indEnd );
+    appendToFootprintOutput( "Finished Quick Sort" );
+}
+
+void SortAlgorithms::quicksort( std::vector< Value >& rkContent, Index indStart, Index indEnd )
+{
+    if( indStart >= indEnd )
+    {   // Leaf case: Left and Right points to the same element, or
+        // they have in fact crossed each other
+        return;
+    }
+
+    // Do partition, where indMid points to the partitioning element
+    Index indMid = partition( rkContent, indStart, indEnd );
+
+    // Recursive sort with the section left and right of partiioning element
+    quicksort( rkContent, indStart, indMid - 1 );
+    quicksort( rkContent, indMid + 1, indEnd );
+}
+
+Index SortAlgorithms::partition( std::vector< Value >& rkContent, Index indStart, Index indEnd )
+{
+    Index indL = indStart - 1; // For easy loop, intitial left and right indices shift by one
+    Index indR = indEnd;
+    Value kCompVal = rkContent[ indEnd ];
+    bool    bPartionPositionFound = false;
+
+    while( !bPartionPositionFound )
+    {
+        // Have left index travel right until an element larger or equal
+        // to CompVal is encountered
+        // Possible that indL == indEnd at the end
+        while( rkContent[ ++indL ] < kCompVal ) {}
+
+        // Have right index travel left until an element less than
+        // or equal to CompVal is encounters, or when it reaches the
+        // start
+        while( kCompVal < rkContent[ --indR ] )
+        {
+            if( indR == indStart )
+                break;
+        }
+
+        // Can declare positon found when left and right indice crosses
+        // or points to same element
+        if( indL >= indR )
+        {
+            bPartionPositionFound = true;
+        }
+        else
+        {   // Left and right indices points to out-of-place elements
+            // Switch places to ensure smaller elements are on the left
+            // and large elements are on the right of the element
+            exchElements( rkContent, indL, indR );
+            appendVectorContentToFootprint( rkContent,
+                                            QString( "Paritition SW [%1, %2]:\t" )
+                                                .arg( indL )
+                                                .arg( indR ) );
+        }
+    }
+
+    // Left index is where the partition element should be
+    exchElements( rkContent, indL, indEnd );
+    appendVectorContentToFootprint( rkContent,
+                                    QString( "Parition Mid [%1, %2, %3]:\t" )
+                                        .arg( indStart )
+                                        .arg( indL )
+                                        .arg( indEnd ) );
+
+    return indL;
 }

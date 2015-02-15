@@ -63,6 +63,11 @@ private:
     void heapPromoteElement( Heap& rkHeap, Index indMod );
     void heapDemoteElement( Heap& rkHeap, Index indMod );
 
+    // Quick Sort
+    void    doQuickSort( std::vector< Value >& rkContent );
+    void    quicksort( std::vector< Value >& rkContent, Index indStart, Index indEnd );
+    Index   partition( std::vector< Value >& rkContent, Index indStart, Index indEnd );
+
 private slots:
     void on_btn_ClearFootprint_clicked();
 
