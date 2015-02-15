@@ -32,7 +32,7 @@ SortAlgorithms::~SortAlgorithms()
     delete ui;
 }
 
-void SortAlgorithms::appendVectorContentToFootprint( const std::vector< int > kVecContent, const QString& strLabel )
+void SortAlgorithms::appendVectorContentToFootprint( const std::vector< Value >& kVecContent, const QString& strLabel )
 {
     QString strDispContent;
     std::ostringstream  os;
@@ -71,8 +71,8 @@ void SortAlgorithms::on_btn_ClearFootprint_clicked()
 
 void SortAlgorithms::on_btn_Randomize_clicked()
 {
-    int iNumOfEntries = 0;
-    int iNewEntryVal = 0;
+    Index   iNumOfEntries = 0;
+    Value   kNewEntryVal = 0;
 //    // For random entry generator
 //    unsigned int uSeed = std::chrono::system_clock::now().time_since_epoch().count();
 //    default_random_engine kRandEng( uSeed );
@@ -90,12 +90,12 @@ void SortAlgorithms::on_btn_Randomize_clicked()
     ui->listW_RawInput->clear();
 
     // Start generating random numbers
-    for( int i = 0; i < iNumOfEntries; i++ )
+    for( Index i = 0; i < iNumOfEntries; i++ )
     {
 //        iNewEntryVal = kRandDistr( kRandEng );
-        iNewEntryVal = qrand() % 60;
-        QVariant kData( iNewEntryVal );
-        QListWidgetItem* pkNewItem = new QListWidgetItem( QString::number( iNewEntryVal ),
+        kNewEntryVal = qrand() % 60;
+        QVariant kData( kNewEntryVal );
+        QListWidgetItem* pkNewItem = new QListWidgetItem( kData.toString(), // QString::number( kNewEntryVal )
                                                           ui->listW_RawInput );
         pkNewItem->setData( Qt::UserRole, kData );
     }
@@ -103,25 +103,88 @@ void SortAlgorithms::on_btn_Randomize_clicked()
 
 void SortAlgorithms::on_btn_DoSort_clicked()
 {
-    ESortAlgorithm      eCurrentMethod = static_cast< ESortAlgorithm >( m_btnGrpSortMethod.checkedId() );
-    std::vector< int >  kRawInput;
-    int                 iEntryVal = -1;
+    ESortAlgorithm          eCurrentMethod = static_cast< ESortAlgorithm >( m_btnGrpSortMethod.checkedId() );
+    std::vector< Value >    kRawInput;
+    Value                   kEntryVal = -1;
 
     // Grab values from UI
     kRawInput.reserve( ui->listW_RawInput->count() );
     for( int i = 0; i < ui->listW_RawInput->count(); i++ )
     {
-        iEntryVal = ui->listW_RawInput->item( i )->data( Qt::UserRole ).toInt();
-        kRawInput.push_back( iEntryVal );
+        kEntryVal = ui->listW_RawInput->item( i )->data( Qt::UserRole ).value< Value >();
+        kRawInput.push_back( kEntryVal );
     }
-    appendVectorContentToFootprint( kRawInput, "Start to sort input:" );
+    appendVectorContentToFootprint( kRawInput, "Sort input:" );
 
     // Perform sort
     switch (eCurrentMethod) {
     case SORT_INSERT:
-
+        doInsertionSort( kRawInput );
         break;
     default:
         break;
     }
+}
+
+////////////////////////////////////////////////////////////////////////////
+//  Sort Algorithms
+////////////////////////////////////////////////////////////////////////////
+// Common helper functions
+void SortAlgorithms::exchElements( std::vector< Value >& rkContent, Index indA, Index indB )
+{
+    Value kTempVal = rkContent[ indA ];
+    rkContent[ indA ] = rkContent[ indB ];
+    rkContent[ indB ] = kTempVal;
+}
+
+// Compare and exchange to ensure A < B afterwares
+void SortAlgorithms::exchCompAccend( std::vector< Value >& rkContent, Index indA, Index indB )
+{
+    if( rkContent[ indA ] > rkContent[ indB ] )
+    {
+        exchElements( rkContent, indA, indB );
+    }
+}
+
+// Insert Sort
+void SortAlgorithms::doInsertionSort( std::vector< Value >& rkContent )
+{
+    Index indL = 0;
+    Index indR = rkContent.size() - 1;
+
+    appendToFootprintOutput( "Begin Insertion Sort" );
+
+    // Do a one-pass Bubble-sort to ensure the first element is the smallest
+    // so that we can use it as a sentinel
+    for( Index indI = indR; indI > indL; indI-- )
+    {
+        exchCompAccend( rkContent, indI - 1, indI );
+    }
+
+    appendVectorContentToFootprint( rkContent, "Sentinel Setup:" );
+
+    // For the real thing
+    // The sentinel setup ensures the first two entries are in order, so let's just
+    // start checking with the 3 element
+    for( Index indI = indL + 2; indI <= indR; indI++ )
+    {
+        Index indTravel = indI;
+        Value kTravel   = rkContent[ indI ];
+
+        // If value for the traveling entry less then previous one, move to the left
+        // until traveling entry encounters a previous value less than itself
+        while( kTravel < rkContent[ indTravel - 1 ] )
+        {
+            // Move previous entry to right
+            rkContent[ indTravel ] = rkContent[ indTravel - 1 ];
+            indTravel--;
+        }
+        rkContent[ indTravel ] = kTravel;
+
+        appendVectorContentToFootprint( rkContent, QString("Pass %1:\t").arg( indI ) );
+    }
+
+    appendVectorContentToFootprint( rkContent, "Sort Result =>" );
+
+    appendToFootprintOutput( "Finished Insertion Sort" );
 }

@@ -11,6 +11,9 @@ namespace Ui {
 class SortAlgorithms;
 }
 
+typedef int Index;
+typedef int Value;
+
 enum ESortAlgorithm
 {
     SORT_INSERT,
@@ -33,10 +36,22 @@ public:
 private:
     int getRandomEntryValue();
 
-    void appendVectorContentToFootprint( const std::vector< int > kVecContent, const QString& strLabel = "" );
+    void appendVectorContentToFootprint( const std::vector< Value >& kVecContent, const QString& strLabel = "" );
 
     void appendToFootprintOutput( const QString& strDisplayTxt );
     void clearFootprint();
+
+    ////////////////////////////////////////////////////////////////////////////
+    //  Sort Algorithms
+    ////////////////////////////////////////////////////////////////////////////
+
+    // Common helper functions
+    void exchElements( std::vector< Value >& rkContent, Index indA, Index indB );
+    // Compare and exchange to ensure A < B
+    void exchCompAccend( std::vector< Value >& rkContent, Index indA, Index indB );
+
+    // Insert Sort
+    void doInsertionSort( std::vector< Value >& rkContent );
 
 private slots:
     void on_btn_ClearFootprint_clicked();
