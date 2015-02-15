@@ -14,6 +14,9 @@ class SortAlgorithms;
 typedef int Index;
 typedef int Value;
 
+// Using array implementation of heap
+typedef std::vector< Value >    Heap;
+
 enum ESortAlgorithm
 {
     SORT_INSERT,
@@ -52,6 +55,13 @@ private:
 
     // Insert Sort
     void doInsertionSort( std::vector< Value >& rkContent );
+
+    // Heap Sort
+    void doHeapSort( std::vector< Value >& rkContent );
+    void insertToHeap( Heap& rkHeap, const Value& kNewValue );
+    Value popMaxFromHeap( Heap& rkHeap );
+    void heapPromoteElement( Heap& rkHeap, Index indMod );
+    void heapDemoteElement( Heap& rkHeap, Index indMod );
 
 private slots:
     void on_btn_ClearFootprint_clicked();

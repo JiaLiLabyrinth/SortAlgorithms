@@ -106,6 +106,7 @@ void SortAlgorithms::on_btn_DoSort_clicked()
     ESortAlgorithm          eCurrentMethod = static_cast< ESortAlgorithm >( m_btnGrpSortMethod.checkedId() );
     std::vector< Value >    kRawInput;
     Value                   kEntryVal = -1;
+    bool                    bSortComplete = true;
 
     // Grab values from UI
     kRawInput.reserve( ui->listW_RawInput->count() );
@@ -121,8 +122,17 @@ void SortAlgorithms::on_btn_DoSort_clicked()
     case SORT_INSERT:
         doInsertionSort( kRawInput );
         break;
-    default:
+    case SORT_HEAP:
+        doHeapSort( kRawInput );
         break;
+    default:
+        bSortComplete = false;
+        break;
+    }
+
+    if( bSortComplete )
+    {
+        appendVectorContentToFootprint( kRawInput, "Sort Result =>" );
     }
 }
 
@@ -184,7 +194,105 @@ void SortAlgorithms::doInsertionSort( std::vector< Value >& rkContent )
         appendVectorContentToFootprint( rkContent, QString("Pass %1:\t").arg( indI ) );
     }
 
-    appendVectorContentToFootprint( rkContent, "Sort Result =>" );
-
     appendToFootprintOutput( "Finished Insertion Sort" );
+}
+
+// Heap Sort
+void SortAlgorithms::doHeapSort( std::vector< Value >& rkContent )
+{
+    Heap kHeap;
+
+    appendToFootprintOutput( "Begin Heap Sort" );
+
+    // Build heap from content
+    for( Index indI = 0; indI < rkContent.size(); indI++ )
+    {
+        insertToHeap( kHeap, rkContent[ indI ] );
+
+        appendVectorContentToFootprint( kHeap, QString("Build Heap Pass %1").arg( indI ) );
+    }
+
+    // Insert values back to content by removing max from heap
+    Index indInsert = kHeap.size() - 1;
+    while( kHeap.size() > 0 && indInsert >= 0 )
+    {
+        Value kMax = popMaxFromHeap( kHeap );
+        rkContent[ indInsert-- ] = kMax;
+
+        appendVectorContentToFootprint( kHeap, QString("Rm Max %1").arg( kMax ) );
+    }
+
+    // After heap is built
+    appendToFootprintOutput( "Finished Heap Sort" );
+}
+
+void SortAlgorithms::insertToHeap( Heap& rkHeap, const Value& kNewValue )
+{
+    // Add new element to bottom of heap
+    rkHeap.push_back( kNewValue );
+
+    // Heapify, bottom-up
+    heapPromoteElement( rkHeap, rkHeap.size() - 1 );
+}
+
+Value SortAlgorithms::popMaxFromHeap( Heap& rkHeap )
+{
+    Value kMaxEntry = -1;
+    Index indLast = rkHeap.size() - 1;
+
+    if( indLast >= 0 )
+    {
+        // Have top (max) element swich place with last bottom item
+        exchElements( rkHeap, 0, indLast );
+
+        // Remove max element from heap
+        kMaxEntry = rkHeap[ indLast ];
+        rkHeap.pop_back();
+
+        // Heapify, top-down
+        heapDemoteElement( rkHeap, 0 );
+    }
+
+    return kMaxEntry;
+}
+
+void SortAlgorithms::heapPromoteElement( Heap& rkHeap, Index indMod )
+{
+    Index indParent = indMod / 2;
+    while( indMod >= 1 & rkHeap[ indMod ] > rkHeap[ indParent ] )
+    {
+        exchElements( rkHeap, indMod, indParent );
+        indMod = indParent;
+        indParent = indMod / 2;
+    }
+}
+
+void SortAlgorithms::heapDemoteElement( Heap& rkHeap, Index indMod )
+{
+    Index   indLast = rkHeap.size();
+    bool    bFoundRightPlace = false;
+
+    while( !bFoundRightPlace && ( indMod * 2 ) <= indLast )
+    {
+        Index indChild1 = indMod * 2;
+        Index indChild2 = indMod * 2 + 1;
+        Index indChildLarger = indChild1;   // Presume child 1 has the larger value
+
+        // Determine which child is larger (i.e. the one to replace parent with if demotion is to occur)
+        if( indChild1 < indLast                         // There are indeed 2 children
+         && rkHeap[ indChild1 ] < rkHeap[ indChild2 ] ) // Child 2 is larger
+        {
+            indChildLarger = indChild2;
+        }
+
+        if( rkHeap[ indChildLarger ] < rkHeap[ indMod ] )
+        {   // Element for indMod is where it should be in heap; Quit heapfy process
+            bFoundRightPlace = true;
+        }
+        else
+        {   // Move Element for indMod downwards
+            exchElements( rkHeap, indMod, indChildLarger );
+            indMod = indChildLarger;
+        }
+    }
 }
