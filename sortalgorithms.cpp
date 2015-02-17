@@ -429,18 +429,16 @@ void SortAlgorithms::mergesections( std::vector< Value >& rkInput, std::vector< 
     int indLeft;
     int indRight;
     // First, place the section back to back in the aux buffer
-    for( indLeft = indStart; indLeft <= indMid; indLeft++ )
-    {
-        kAuxBuff[ indLeft ] = rkInput[ indLeft ];
+    for( indLeft = indMid + 1; indLeft > indStart; indLeft-- )
+    {   // Aux: From middle to left
+        kAuxBuff[ indLeft - 1 ] = rkInput[ indLeft - 1 ];
     }
-    for( indRight = indEnd; indRight > indMid; indRight-- )
-    {
-        kAuxBuff[ ( indMid + 1 ) + ( indEnd - indRight ) ] = rkInput[ indRight ];
+    for( indRight = indMid; indRight < indEnd; indRight++ )
+    {   // Aux: From middle to right, which fills the latter section in inversly
+        kAuxBuff[ indEnd + indMid - indRight ] = rkInput[ indRight + 1 ];
     }
 
     // Compare and merge
-    indLeft = indStart;
-    indRight = indEnd;
     for( Index indInsert = indStart; indInsert <= indEnd; indInsert++ )
     {
         if( kAuxBuff[ indLeft ] < kAuxBuff[ indRight ] )
