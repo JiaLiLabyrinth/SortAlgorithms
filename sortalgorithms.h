@@ -68,6 +68,13 @@ private:
     void    quicksort( std::vector< Value >& rkContent, Index indStart, Index indEnd );
     Index   partition( std::vector< Value >& rkContent, Index indStart, Index indEnd );
 
+    // Merge Sort
+    void    doMergeSort( std::vector< Value >& rkContent );
+    void    mergesort( std::vector< Value >& rkInput, std::vector< Value >& kAuxBuff,
+                       Index indStart, Index indEnd );
+    void    mergesections( std::vector< Value >& rkInput, std::vector< Value >& kAuxBuff,
+                           Index indStart, Index indMid, Index indEnd );
+
 private slots:
     void on_btn_ClearFootprint_clicked();
 

@@ -128,6 +128,9 @@ void SortAlgorithms::on_btn_DoSort_clicked()
     case SORT_QUICK:
         doQuickSort( kRawInput );
         break;
+    case SORT_MERGE:
+        doMergeSort( kRawInput );
+        break;
     default:
         bSortComplete = false;
         break;
@@ -377,4 +380,76 @@ Index SortAlgorithms::partition( std::vector< Value >& rkContent, Index indStart
                                         .arg( indEnd ) );
 
     return indL;
+}
+
+// Merge Sort
+void SortAlgorithms::doMergeSort( std::vector< Value >& rkContent )
+{
+    std::vector< Value >    kAuxBuffer; // To place sorted items
+
+    appendToFootprintOutput( "Begin Merge Sort" );
+
+    kAuxBuffer.resize( rkContent.size(), -1 );
+    mergesort( rkContent, kAuxBuffer,
+               0,
+               rkContent.size() - 1 );
+
+    appendToFootprintOutput( "Finished Merge Sort" );
+}
+
+void SortAlgorithms::mergesort( std::vector< Value >& rkInput, std::vector< Value >& kAuxBuff,
+                                Index indStart, Index indEnd )
+{
+    if( indStart >= indEnd )
+    {   // Leaf case: section only has one element; no sort needed
+        return;
+    }
+
+    // Top-down: recurvely do mergesort with smaller sections,
+    // namely by deviding in half to section start ~ mid and
+    // mid + 1 ~ end
+    Index indMid = ( indEnd + indStart ) / 2;
+    mergesort( rkInput, kAuxBuff, indStart, indMid );
+    mergesort( rkInput, kAuxBuff, indMid + 1, indEnd );
+
+    // With section start ~ mid and mid + 1 ~ end sorted section, merge them
+    // within sectin start ~ end
+    mergesections( rkInput, kAuxBuff, indStart, indMid, indEnd );
+
+    appendVectorContentToFootprint( rkInput,
+                                    QString("Merge %1-%2-%3:\t")
+                                            .arg( indStart )
+                                            .arg( indMid )
+                                            .arg( indEnd ) );
+}
+
+void SortAlgorithms::mergesections( std::vector< Value >& rkInput, std::vector< Value >& kAuxBuff,
+                                    Index indStart, Index indMid, Index indEnd )
+{
+    int indLeft;
+    int indRight;
+    // First, place the section back to back in the aux buffer
+    for( indLeft = indStart; indLeft <= indMid; indLeft++ )
+    {
+        kAuxBuff[ indLeft ] = rkInput[ indLeft ];
+    }
+    for( indRight = indEnd; indRight > indMid; indRight-- )
+    {
+        kAuxBuff[ ( indMid + 1 ) + ( indEnd - indRight ) ] = rkInput[ indRight ];
+    }
+
+    // Compare and merge
+    indLeft = indStart;
+    indRight = indEnd;
+    for( Index indInsert = indStart; indInsert <= indEnd; indInsert++ )
+    {
+        if( kAuxBuff[ indLeft ] < kAuxBuff[ indRight ] )
+        {
+            rkInput[ indInsert ] = kAuxBuff[ indLeft++ ];
+        }
+        else
+        {
+            rkInput[ indInsert ] = kAuxBuff[ indRight-- ];
+        }
+    }
 }
